@@ -1,0 +1,2 @@
+// Relocations splat cannot find by itself in VIEWER (rom offset = address -
+// 0x700000). See config/reloc_addrs.txt and docs/shifting.md.

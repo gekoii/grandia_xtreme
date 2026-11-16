@@ -1,0 +1,8 @@
+#include "common.h"
+#include "protos/field.h"
+
+void FldMenuGeoPointHelpInit(void) {
+    FldMenuWinOpen(8, 0x140, 0xE0, 0x1EA, 0x11D, 0, 0, 0);
+    FldMenuWinOpen(9, 0x140, 0xE0, 0x1EA, 0x11D, 0, 0, 0x400000);
+    FldMenuWinOpen(10, 0x140, 0xE0, 0x1EA, 0x11D, 0, 0, 0x400000);
+}

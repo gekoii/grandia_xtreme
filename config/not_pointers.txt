@@ -1,0 +1,75 @@
+// Values in the main executable's data that look like addresses but aren't.
+// splat (spimdisasm) turns every data word whose value falls in the binary into
+// a symbol reference, and puts a label at the value. ignore - True stops both, so
+// these stay numbers and don't split the real objects they point into (mostly .bss).
+// Read by config/SLUS_204.17.yaml only. See docs/shifting.md.
+
+// "BIN" of the file names in sysProgramTable
+D_004E4942 = 0x004E4942; // ignore:True
+// "MOV" of the file names in sysMovieFileTable
+D_00564F4D = 0x00564F4D; // ignore:True
+// R5900 instructions in _sceKernelAlarmPatch (code copied to kernel memory)
+D_00503023 = 0x00503023; // ignore:True
+D_00508021 = 0x00508021; // ignore:True
+D_00511021 = 0x00511021; // ignore:True
+D_00511821 = 0x00511821; // ignore:True
+D_00531818 = 0x00531818; // ignore:True
+// u16 pairs in the sprite rect table D_004A2A0C
+D_005900E8 = 0x005900E8; // ignore:True
+D_005900F8 = 0x005900F8; // ignore:True
+D_005A00D9 = 0x005A00D9; // ignore:True
+D_005A00EC = 0x005A00EC; // ignore:True
+// u16 pairs in the sprite rect tables menuHelpVsTypeIcons and menuItemIcons
+D_004E001A = 0x004E001A; // ignore:True
+D_004E0034 = 0x004E0034; // ignore:True
+D_004E004E = 0x004E004E; // ignore:True
+D_004E0068 = 0x004E0068; // ignore:True
+D_004E0082 = 0x004E0082; // ignore:True
+D_004E009C = 0x004E009C; // ignore:True
+D_004E00B6 = 0x004E00B6; // ignore:True
+D_004E00D0 = 0x004E00D0; // ignore:True
+D_004E00EA = 0x004E00EA; // ignore:True
+D_004F0001 = 0x004F0001; // ignore:True
+D_004F001B = 0x004F001B; // ignore:True
+D_004F0035 = 0x004F0035; // ignore:True
+D_004F004F = 0x004F004F; // ignore:True
+D_004F0069 = 0x004F0069; // ignore:True
+D_004F0083 = 0x004F0083; // ignore:True
+D_004F009D = 0x004F009D; // ignore:True
+D_004F00B7 = 0x004F00B7; // ignore:True
+D_004F00D1 = 0x004F00D1; // ignore:True
+// u16 pairs in ipIconUnitLabelRects
+D_005000E4 = 0x005000E4; // ignore:True
+D_005000F8 = 0x005000F8; // ignore:True
+D_005100D1 = 0x005100D1; // ignore:True
+D_005100E5 = 0x005100E5; // ignore:True
+// u16 pairs in menuElementIcons
+D_004E00A2 = 0x004E00A2; // ignore:True
+D_004E00BC = 0x004E00BC; // ignore:True
+D_004E00D6 = 0x004E00D6; // ignore:True
+D_004E00F0 = 0x004E00F0; // ignore:True
+D_004F0089 = 0x004F0089; // ignore:True
+D_004F00A3 = 0x004F00A3; // ignore:True
+D_004F00BD = 0x004F00BD; // ignore:True
+D_004F00D7 = 0x004F00D7; // ignore:True
+// Characters of strings (debug menu texts, sysProgramNames) read as words
+D_004B4345 = 0x004B4345; // ignore:True
+D_004B4349 = 0x004B4349; // ignore:True
+D_004D4554 = 0x004D4554; // ignore:True
+D_004E4F20 = 0x004E4F20; // ignore:True
+D_004E4F49 = 0x004E4F49; // ignore:True
+D_004E5552 = 0x004E5552; // ignore:True
+D_004E614E = 0x004E614E; // ignore:True
+D_004F464E = 0x004F464E; // ignore:True
+D_0050414D = 0x0050414D; // ignore:True
+D_00534F50 = 0x00534F50; // ignore:True
+D_00544345 = 0x00544345; // ignore:True
+D_00544346 = 0x00544346; // ignore:True
+D_00544356 = 0x00544356; // ignore:True
+D_00544E45 = 0x00544E45; // ignore:True
+D_00554E45 = 0x00554E45; // ignore:True
+D_00582578 = 0x00582578; // ignore:True
+D_00584544 = 0x00584544; // ignore:True
+// float constants in fdlibm's atanf table aT
+D_004D7327 = 0x004D7327; // ignore:True
+D_00560330 = 0x00560330; // ignore:True

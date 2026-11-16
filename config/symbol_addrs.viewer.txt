@@ -1,0 +1,52 @@
+// Symbols local to the viewer overlay
+
+VwrEntry = 0x00700000; // type:func  overlay entry - registers the 8 VIEWER program callbacks with m - 401160 (SysProgRegister)
+VwrInit = 0x00700058; // type:func  program callback 1 - clears work/model list/camera, two draw lists, light list, 1MB model pool, 4 default lights, shadow matrix and colour, VwrSceneSetup
+VwrResume = 0x007003F8; // type:func  program callback 2 (resume) - empty
+VwrLoad = 0x00700400; // type:func  program callback 3 - DATA heap, PtclStarterInit, loads MODEL/XYZ/STAGE/MOTION.PAC and TEXENV.TXD, lays models out 250 apart, debug flags by GRX.INI "viewer ptc", fade in
+VwrDraw = 0x00700648; // type:func  program callback 4 - draws draw-list layers 0 (+shadow layer), 1, 7, 10, 11, env map, particles and VwrAnimDebugDraw
+VwrUpdate = 0x007006E8; // type:func  program callback 5 - debug pad camera, per-object motion selection/speed/sequence from dbgMotObjParams, motion blend, places object 0 from PtclStarterUpdate result, PtclUpdate
+VwrViewSetup = 0x00700A10; // type:func  DATA heap, draw list 0, light list, DbgSetObjList/DbgSetCamera, CamApply for the given view, loads the camera matrix
+VwrBuildDrawLists = 0x00700A88; // type:func  program callback 8 - wraps camera angles, light 1 follows camera (unless "viewer lgt"), shadow matrix, draws models (skips XYZ/STAGE when off), planar shadow pass when SDW on
+VwrEndFrame = 0x00700DC0; // type:func  program callback 6 - GphModelUpdateGsRegs on every model, PtclModelsUpdateGsRegs
+VwrLoadModelPack = 0x00700E38; // type:func  "DATA/"+name - reads a model pack, clears part +0x14 unless "viewer mip", creates an instance per entry into vwrModelList, optionally adds file/inst/sort sizes
+VwrLoadMotionPack = 0x00701000; // type:func  "DATA/"+name - reads a motion pack (m - 4537D0) into chrMotionList, adds its size to vwrStatFileBytes
+VwrSceneSetup = 0x00701108; // type:func  applies GRX.INI - camera fog/clip/view angle, ambient + 2 light colours/directions, CRS/SDW/STG toggles, clear colour
+VwrAnimDebugDraw = 0x007012C8; // type:func  when vwrAnimDebugOn - draws vwrAnim as a sprite and prints "anm %d sync %d key %d frame %.3f"
+VwrMotBlendStep = 0x00701398; // type:func  advances the motion cross-fade (+0x74) by 1/dbgMotObjParams[3].+3 frames, at 1.0 makes the next motion (+0x88) current
+VwrMotRequest = 0x00701408; // type:func  sets a motion or queues it as next with blend state 2, error codes -1/-2/-7/-8/-9 (bad motion, model, already set, id mismatch)
+VwrDirToPitchYaw = 0x007014A8; // type:func  direction to pitch/yaw radians with asinf (pitch clamped near +-88 deg), unreferenced
+VwrPitchYawToDir = 0x007015E8; // type:func  pitch/yaw radians to a unit direction (VuSinCosAngle), unreferenced
+VwrDirToRotXY = 0x00701700; // type:func  direction to x/y rotation radians with acosf of dot products vs (0,0,1), used by VwrFlockUpdate
+VwrVecDistance = 0x00701810; // type:func  sqrtf of the squared xyz difference of two vectors
+VwrAngleDiff = 0x00701850; // type:func  signed shortest difference between two angles wrapped to [0, 2pi)
+VwrFlockNop = 0x00701980; // type:func  empty function among the flock helpers, unreferenced (weak)
+VwrFlockSetWaypoint = 0x00701988; // type:func  vwrFlockWaypoints[idx] = vec (quadword copy)
+VwrFlockInit = 0x007019A8; // type:func  (first model, agent count, waypoint count) - random speed limits, accel, separation radius, climb rate per agent
+VwrFlockGetWaypointNeg = 0x00701BC0; // type:func  returns the negated current waypoint (vwrFlockWaypoints[cur])
+VwrFlockUpdate = 0x00701C00; // type:func  boids-style flock - pairwise distances, separation turning, steer to current waypoint (next one within 200), altitude, writes agent pos/angles to models
+vwrShadowMtx = 0x00703500; // planar shadow projection matrix (GphShadowCalcMtx from light 1 dir), multiplied onto the stack for the shadow pass
+vwrStatFileBytes = 0x00703540; // bytes read from MODEL.PAC + MOTION.PAC, FILE column of PtclDbgSetExtSizes
+vwrStatInstBytes = 0x00703544; // summed ChrModelCalcInstanceSize of MODEL.PAC entries, INST column of PtclDbgSetExtSizes
+vwrStatSortBytes = 0x00703548; // summed GphDrawListSize of MODEL.PAC entries, SORT column of PtclDbgSetExtSizes
+vwrWork = 0x00703550; // viewer work 0x4C - +0/+4 draw list sizes, +0x20/+0x24 draw list buffers (main, shadow), +0x40/+0x44 light list count/buffer
+vwrAnimDebugOn = 0x0070359C; // enables VwrAnimDebugDraw (never set in code)
+vwrAnim = 0x007035A0; // 2D sprite animation state stepped by VwrUpdate (GphAnimStep) and drawn by VwrAnimDebugDraw
+vwrAnimTex = 0x007035C0; // texture (0x140) uploaded and bound for the VwrAnimDebugDraw sprite
+vwrFlockAgents = 0x00703700; // 64 x 0x250 flock agents - +0 pos, +0x14 heading, +0x20 distances to others, +0x220 speed, +0x224/+0x228 max/min, +0x238 separation radius
+vwrFlockDist = 0x00703720; // vwrFlockAgents[0]+0x20 - per-agent distance table read by VwrFlockUpdate
+vwrFlockWaypoints = 0x0070CB00; // 64 waypoint vectors + current index at +0x400 (VwrFlockSetWaypoint/GetWaypointNeg/Update)
+vwrFlockCfg = 0x0070CF10; // flock settings from VwrFlockInit - +0 first model index, +2 agent count, +4 waypoint count, +6 on
+vwrModelPool = 0x0070D120; // model instance pool header (ChrModelPoolInit over a 1MB buffer in VwrInit)
+vwrModelList = 0x0070D138; // {count, model[256]} - instances from the model packs (stage last, XYZ before it)
+vwrCamera = 0x0070D540; // viewer camera (CamDebugReset, CamApply, +0x90/94 angles, +0x9C distance, +0x144.. fog/clip from GRX.INI)
+
+vwr_acosf = 0x007027D8; // type:func  newlib wf_acos.c wrapper (C comment, "acosf"), VIEWER copy of acosf, called by 701700
+vwr_asinf = 0x007028D8; // type:func  newlib wf_asin.c wrapper (C comment, "asinf"), VIEWER copy of asinf, called by the yaw/pitch helper 7014A8
+vwr___ieee754_acosf = 0x007029D8; // type:func  newlib ef_acos.c (C comment), VIEWER copy of __ieee754_acosf
+vwr___ieee754_asinf = 0x00702E08; // type:func  newlib ef_asin.c (C comment), VIEWER copy of __ieee754_asinf
+vwr___ieee754_sqrtf = 0x007031A8; // type:func  newlib ef_sqrt.c (C comment), VIEWER copy of __ieee754_sqrtf, called by the acos/asin kernels
+vwr_matherr = 0x007032E0; // type:func  newlib s_matherr.c default matherr (compares exc->arg1 with itself, returns 0), VIEWER copy
+vwr_fabsf = 0x00703308; // type:func  newlib sf_fabs.c (C comment), VIEWER copy of fabsf
+vwr_isnanf = 0x00703328; // type:func  newlib sf_isnan.c (C comment), VIEWER copy of isnanf
+_LIB_VERSION_vwr = 0x007034CC; // (disambiguated) VIEWER's own linked copy of newlib s_lib_ver.c _LIB_VERSION (value 1), checked against -1 and 2 by the viewer acosf/asinf wrappers 7027D8/7028D8 (main copy _LIB_VERSION)

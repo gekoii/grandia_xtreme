@@ -1,0 +1,21 @@
+{
+ "headers": "3e423b75b64c2be92d9fc19e9af7aad3f3144e2c",
+ "bss": {
+  "src/battle/bss_6E3F00.c": {
+   "envShadowDrawCb": 128,
+   "envShadowPreCb": 128
+  }
+ },
+ "aliases": {
+  "D_004A07A8": [
+   "set",
+   "__malloc_av_",
+   16
+  ],
+  "D_004A0B98": [
+   "set",
+   "__malloc_av_",
+   2032
+  ]
+ }
+}

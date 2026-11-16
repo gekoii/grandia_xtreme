@@ -1,0 +1,92 @@
+#include "common.h"
+#include "gph.h"
+#include "battle/env.h"
+#include "protos/battle.h"
+
+void EnvLightApply(void) {
+    EnvLight *l = &envLight;
+    EnvLight *l2 = (EnvLight *)&l->amb[1];
+    GphLight *p;
+
+    GphLightListSet(l->lists[0]);
+    p = GphLightGet(0);
+    p->color[0] = l->amb[0][0];
+    p->color[1] = l->amb[0][1];
+    p->color[2] = l->amb[0][2];
+    p->color[3] = l->amb[0][3];
+    GphLightListSet(l->lists[1]);
+    p = GphLightGet(0);
+    p->color[0] = l->amb[0][0];
+    p->color[1] = l->amb[0][1];
+    p->color[2] = l->amb[0][2];
+    p->color[3] = l->amb[0][3];
+    GphLightListSet(l->lists[2]);
+    p = GphLightGet(0);
+    p->color[0] = l->amb[1][0];
+    p->color[1] = l->amb[1][1];
+    p->color[2] = l->amb[1][2];
+    p->color[3] = l->amb[1][3];
+    GphLightListSet(l->lists[0]);
+    p = GphLightGet(1);
+    p->color[0] = l->color[0][0][0];
+    p->color[1] = l->color[0][0][1];
+    p->color[2] = l->color[0][0][2];
+    p->color[3] = l->color[0][0][3];
+    p->intensity = l->intensity[0][0];
+    p->dir[0] = l->dir[0][0][0];
+    p->dir[1] = l->dir[0][0][1];
+    p->dir[2] = l->dir[0][0][2];
+    p->dir[3] = 0.0f;
+    p = GphLightGet(2);
+    p->color[0] = l2->color[0][0][0];
+    p->color[1] = l2->color[0][0][1];
+    p->color[2] = l2->color[0][0][2];
+    p->color[3] = l2->color[0][0][3];
+    p->intensity = l->intensity[0][1];
+    p->dir[0] = l2->dir[0][0][0];
+    p->dir[1] = l2->dir[0][0][1];
+    p->dir[2] = l2->dir[0][0][2];
+    p->dir[3] = 0.0f;
+    GphLightListSet(l->lists[1]);
+    p = GphLightGet(1);
+    p->color[0] = l->color[0][0][0];
+    p->color[1] = l->color[0][0][1];
+    p->color[2] = l->color[0][0][2];
+    p->color[3] = l->color[0][0][3];
+    p->intensity = l->intensity[0][0];
+    p->dir[0] = l->dir[0][0][0];
+    p->dir[1] = l->dir[0][0][1];
+    p->dir[2] = l->dir[0][0][2];
+    p->dir[3] = 0.0f;
+    p = GphLightGet(2);
+    p->color[0] = l2->color[0][0][0];
+    p->color[1] = l2->color[0][0][1];
+    p->color[2] = l2->color[0][0][2];
+    p->color[3] = l2->color[0][0][3];
+    p->intensity = l->intensity[0][1];
+    p->dir[0] = l2->dir[0][0][0];
+    p->dir[1] = l2->dir[0][0][1];
+    p->dir[2] = l2->dir[0][0][2];
+    p->dir[3] = 0.0f;
+    GphLightListSet(l->lists[2]);
+    p = GphLightGet(1);
+    p->color[0] = l->color[1][0][0];
+    p->color[1] = l->color[1][0][1];
+    p->color[2] = l->color[1][0][2];
+    p->color[3] = l->color[1][0][3];
+    p->intensity = l->intensity[1][0];
+    p->dir[0] = l->dir[1][0][0];
+    p->dir[1] = l->dir[1][0][1];
+    p->dir[2] = l->dir[1][0][2];
+    p->dir[3] = 0.0f;
+    p = GphLightGet(2);
+    p->color[0] = l2->color[1][0][0];
+    p->color[1] = l2->color[1][0][1];
+    p->color[2] = l2->color[1][0][2];
+    p->color[3] = l2->color[1][0][3];
+    p->intensity = l->intensity[1][1];
+    p->dir[0] = l2->dir[1][0][0];
+    p->dir[1] = l2->dir[1][0][1];
+    p->dir[2] = l2->dir[1][0][2];
+    p->dir[3] = 0.0f;
+}

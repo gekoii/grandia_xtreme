@@ -1,0 +1,78 @@
+#include "common.h"
+
+extern u8 vuMicroCode1[];
+extern u8 vuMicroCode1End[];
+extern u8 gphClipPacketBuf[];
+void GsVif1DmaSend(void *, u32);
+void GsVif1DmaWait(void);
+
+void GphVu1FrameSetup(void) {
+    u32 *q;
+    f32 *p30;
+    u32 *p50;
+    u64 *p90;
+    f32 *p230;
+    s32 gif;
+    u64 k;
+
+    GsVif1DmaSend(vuMicroCode1, (u32)(vuMicroCode1End - vuMicroCode1) >> 4);
+    GsVif1DmaWait();
+    q = (u32 *)0x70000110;
+    q[3] = 0x14000006;
+    gif = 0x17000000;
+    q[1] = 0;
+    q[2] = 0;
+    q[0] = 0;
+    k = 0x10000000;
+    q = (u32 *)0x70000120;
+    q[0] = 0x11000000;
+    q[2] = k;
+    q[1] = gif;
+    q[3] = 0;
+    p30 = (f32 *)0x70000030;
+    q = (u32 *)0x70000130;
+    q[0] = k;
+    q[2] = k;
+    q[1] = gif;
+    q[3] = 0;
+    p30[4] = 0.0f;
+    p30[5] = 0.0f;
+    p30[7] = 0.5f;
+    q = (u32 *)0x70000140;
+    q[0] = 0x11000000;
+    q[1] = 0;
+    q[2] = 0;
+    q[3] = 0;
+    q = (u32 *)0x70000150;
+    q[1] = k;
+    q[0] = gif;
+    q[2] = 0;
+    q[3] = 0;
+    q = (u32 *)0x70000160;
+    q[3] = 0x14000008;
+    q[1] = 0;
+    q[2] = 0;
+    q[0] = 0;
+    q = (u32 *)0x70000170;
+    q[3] = gif;
+    q[1] = 0;
+    q[2] = 0;
+    q[0] = 0;
+    p50 = (u32 *)0x70000050;
+    p50[0] = 0;
+    p50[1] = 0;
+    p50[2] = 0;
+    p50[3] = 0x6C0B0100;
+    p90 = (u64 *)0x70000090;
+    p90[0] = 0x9001C00000008000;
+    p90[1] = 0x412412412;
+    k = 0xC001C00000008000;
+    p90[2] = k;
+    p90[3] = 0x412412412EEE;
+    *(volatile u32 *)0x70000014 = (u32)gphClipPacketBuf | 0x20000000;
+    p230 = (f32 *)0x70000230;
+    p230[0] = -0.5f;
+    p230[1] = 0.5f;
+    p230[3] = 0.5f;
+    __asm__ volatile("sync");
+}

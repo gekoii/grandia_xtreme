@@ -1,0 +1,18 @@
+#include "common.h"
+#include "field/event.h"
+
+void EvtScnrBlock7D8Reset(void) {
+    s32 *p = evtScnrBlock7D8;
+    p[0] = 0;
+    p[1] = 0;
+    p[2] = 0;
+    p[3] = 0;
+    p[4] = 0;
+    p[5] = 0;
+    p[6] = 0;
+    p[7] = 0;
+    p[8] = 0;
+    p[9] = 0;
+    p[10] = 0;
+    p[11] = 0;
+}

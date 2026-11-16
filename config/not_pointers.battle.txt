@@ -1,0 +1,5 @@
+// Values in BATTLE's data that look like addresses but aren't (see
+// config/not_pointers.txt). Read by config/battle.yaml only.
+
+// a u16 pair in btlStatLabelSprites
+D_006E00EC = 0x006E00EC; // ignore:True

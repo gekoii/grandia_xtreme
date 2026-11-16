@@ -1,0 +1,65 @@
+# Builds all four binaries, checks them byte for byte against the originals,
+# checks every symbol's address and runs the shift test. The game files are never in the repository: the job fetches an
+# encrypted archive of the owner's own files from a private URL (see
+# docs/ci.md) and skips the build when the secrets aren't set (e.g. on forks).
+name: build
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fetch the game files
+        id: files
+        env:
+          GAME_FILES_URL: ${{ secrets.GAME_FILES_URL }}
+          GAME_FILES_KEY: ${{ secrets.GAME_FILES_KEY }}
+        run: |
+          if [ -z "$GAME_FILES_URL" ] || [ -z "$GAME_FILES_KEY" ]; then
+            echo "::notice::GAME_FILES_URL / GAME_FILES_KEY not set; skipping the build"
+            echo "available=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          curl -sSfL "$GAME_FILES_URL" -o files.enc
+          openssl enc -d -aes-256-cbc -pbkdf2 -pass env:GAME_FILES_KEY -in files.enc | tar -xzf -
+          rm files.enc
+          ls iso/SLUS_204.17 iso/FIELD.BIN iso/BATTLE.BIN iso/VIEWER.BIN
+          echo "available=true" >> "$GITHUB_OUTPUT"
+
+      - name: Set up splat
+        if: steps.files.outputs.available == 'true'
+        run: |
+          python3 -m venv .venv
+          .venv/bin/pip install "splat64[mips]==0.50.1"
+
+      - name: Split
+        if: steps.files.outputs.available == 'true'
+        run: tools/split.sh
+
+      - name: Fetch the compilers
+        if: steps.files.outputs.available == 'true'
+        run: tools/get_compilers.sh
+
+      - name: Build
+        if: steps.files.outputs.available == 'true'
+        run: tools/docker.sh make -j4
+
+      - name: Check
+        if: steps.files.outputs.available == 'true'
+        run: tools/check.sh
+
+      - name: Check symbol addresses
+        if: steps.files.outputs.available == 'true'
+        run: tools/docker.sh python3 tools/check_syms.py
+
+      # --allow-known: the one documented reference that doesn't shift yet
+      # (func_00475878's lui, a `known` line in config/shift_ok.txt) is
+      # reported but doesn't fail the job; anything new does.
+      - name: Shift test
+        if: steps.files.outputs.available == 'true'
+        run: tools/docker.sh python3 tools/shift_test.py --together --allow-known

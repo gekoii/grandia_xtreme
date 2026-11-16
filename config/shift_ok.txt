@@ -1,0 +1,41 @@
+# References tools/shift_test.py should accept although they don't move like
+# the address they hold: each one is meant to stay (or moves with something
+# else). One per line: `<binary> abs <symbol>` or `<binary> addr <address>`
+# (the referenced baseline address, or the address of a raw word or lui),
+# and a comment saying why. See docs/shifting.md.
+
+# ipPanelCharRects = ipPanelFrameRect + 0xC - 0x1001 * 12 (config/symbol_exprs.ld):
+# a base biased by the character id, which lies inside .text but moves with
+# the table in .data
+battle addr 006D3320
+
+# Raw data words that hold an in-range value but aren't addresses
+# main: _sceKernelAlarmPatch, R5900 code copied to kernel memory (0x80076000)
+main addr 004A0C10-004A1350
+# main: _sceKernelAlarmPatchStub, the same kind of kernel code (its `jalr v1`
+# 0x0060F809 looks like a FIELD address)
+main addr 004A1350-004A1378
+# BATTLE: u16 sprite fields between the sprite-list pointers of btlResultMemberPanelRects
+battle addr 006DEC3C
+battle addr 006DEC44
+battle addr 006DEC4C
+# BATTLE: an RGBA colour (0x80, 0x64, 0x55, 0) in the particle type table ptclBurstTypeTable
+battle addr 006DF75C
+
+# lui of a constant that happens to look like an address
+# FIELD 092478 (asm): 0x400000, an argument passed to FldMenuWinOpen in the call's delay slot
+field addr 006427E8
+field addr 006428DC
+field addr 00642904
+field addr 0064293C
+field addr 00642B24
+field addr 00642EE0
+field addr 00643018
+
+# Known: real references that don't shift yet (docs/shifting.md, "What still
+# doesn't shift"). Reported as "known"; they fail the test unless
+# --allow-known is given (CI passes it, so a new problem still fails CI).
+# main: func_00475878, an MMI routine with an inline 16-byte constant
+# (D_004758C0) that splat emits as data words, so its lui/addiu of 0x004758C0
+# can't get a relocation through reloc_addrs
+main known 0047587C
