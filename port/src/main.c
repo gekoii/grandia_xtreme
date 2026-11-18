@@ -28,6 +28,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "grx_fiber.h"
 #include "grx_platform.h"
 #include "grx_hwmem.h"
 #include "grx_kernel.h"
@@ -107,7 +108,7 @@ static void usage(void) {
            "  --camera C       stick (the default: the right stick turns and tilts the field\n"
            "                   camera; L1 and R1 still turn it) or buttons (L1 and R1 only, as\n"
            "                   the original; or set GRX_CAMERA)\n"
-           "  --scene-skip S   on (the default: in a cut scene, hold START for 5 seconds to\n"
+           "  --scene-skip S   on (the default: in a cut scene, hold START for 1.5 seconds to\n"
            "                   skip it) or off (or set GRX_SCENE_SKIP)\n"
            "  --fullscreen    start fullscreen (Alt+Enter, F11 or a double click toggles)\n"
            "  --integer        scale by whole multiples of the picture's height\n"
@@ -242,7 +243,16 @@ static int pad_test(void) {
     }
 }
 
+#ifdef _WIN32
+int main(int argc, char **argv)
+#else
+static int grx_main(int argc, char **argv);
 int main(int argc, char **argv) {
+    return grx_run_on_low_stack(grx_main, argc, argv);
+}
+static int grx_main(int argc, char **argv)
+#endif
+{
     GrxVideoConfig vc;
     const char *mode = NULL, *renderer = NULL, *aspect = NULL, *draw_dist = NULL, *buttons = NULL, *camera = NULL;
     const char *scene_skip = NULL, *hud = NULL;

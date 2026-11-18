@@ -31,8 +31,18 @@ build.
 - Xbox controllers with Xbox button icons in the game, or a keyboard; any
   button can be remapped from the game's Configurations page.
 - The field camera on the right stick: turn it, and tilt it up and down.
-- Skip cut scenes: hold START for 5 seconds.
+- Skip cut scenes: hold START for 1.5 seconds.
 - Save states: Shift+F1 to F4 save, F1 to F4 load.
+- Fast forward: Tab cycles 1x, 2x and 4x (shown as ">> 2" / ">> 4");
+  music and voices keep their normal speed. Off during movies and scene
+  skips. `GRX_TURBO=2` or `4` starts at that speed.
+- Optional mods built from your own disc: more Geo Gates, a map overlay
+  that spreads the minimap over the whole field, and entrances on every
+  map's minimap (see [Included mods](#included-mods)).
+- An Esc menu for the port's settings and its own buttons, and walking on
+  the keyboard.
+- F8 records where you stand (map, position, facing) to `spots.txt`, for
+  picking places to add things.
 
 ## Building
 
@@ -151,7 +161,7 @@ menu): its Controller, Keyboard and Display rows.
 | `--renderer R` | `gl` (the GPU, default) or `software` |
 | `--buttons B` | `auto` (by the controller), `xbox` or `playstation` |
 | `--camera C` | `stick` (default: the right stick turns and tilts the camera) or `buttons` (L1 and R1 only, as the original) |
-| `--scene-skip S` | `on` (default: hold START 5 seconds to skip a cut scene) or `off` |
+| `--scene-skip S` | `on` (default: hold START 1.5 seconds to skip a cut scene) or `off` |
 | `--integer`, `--sharp`, `--smooth` | scale by whole multiples; nearest or linear filtering |
 
 `grandia.exe` with no options lists them all.
@@ -174,18 +184,107 @@ confirm (circle). On the keyboard:
 | First-person view | Select | Backspace |
 | Move | D-pad | Arrows |
 
+The port's own actions, on the same pages:
+
+| Does | Gamepad | Key |
+| --- | --- | --- |
+| Fast forward | L3 | Tab |
+| Map overlay | R3 | M |
+
 To change them, open **Configurations** (on the title screen or in the
-field menu): the **Controller** and **Keyboard** rows list every button.
+field menu): the **Controller** and **Keyboard** rows list every button
+and the port's actions. The Esc menu changes them too.
 
 Keys of the port's own, which can't be remapped:
 
 | Key | |
 | --- | --- |
+| Esc | the port's menu |
+| F8 | record your location to `spots.txt` |
 | F1 to F4 | load save state 1 to 4 |
 | Shift+F1 to Shift+F4 | save state 1 to 4 (saved in `savestates\` next to `grandia.exe`; a state only loads in the build that made it) |
 | F11, Alt+Enter | window or fullscreen |
 | F9 | freeze the game and write a dump to `build/freeze/` (F9 again resumes) |
 | F10 | while frozen, run one field |
+
+## Debug builds
+
+`build.py --debug` (with `--target`, as usual) builds the debug kit into
+`build/portlinux-debug/` (or `port-debug`, `port64-debug`); release builds
+leave it out. Its keys are listed in the top right corner (F12 hides them):
+
+| Key | |
+| --- | --- |
+| F5 | super mode: the party can't die, free MP and SP; L2+L1 in the command menu wins the battle |
+| F6, Shift+F6 | warp to the next or previous map |
+| Ctrl+F6, Ctrl+Shift+F6 | warp to the next or previous Geo Gate |
+| F7 | noclip (PgUp/PgDn rise and sink, Home/End move through walls) |
+| Shift+F7 | reveal the whole minimap |
+
+## Included mods
+
+Mods change what is in the game or how it behaves, so they are optional:
+the port applies them from `mods/` in the working directory, and without
+it the game is as it was. They are built from your own disc, so nothing of
+the game's is in the repository:
+
+```sh
+python3 port/tools/mods.py "iso/Grandia Xtreme (USA).iso"   # builds them all into mods/
+python3 port/tools/mods.py --list                           # lists them
+python3 port/tools/mods.py ISO --without minimap-entrances  # all but one
+```
+
+The extra Geo Gates go in the early dungeons, where gates are few and far
+between: there, the walk back to Locca and in again is at its most tedious
+while you are still getting to know your party. They make those dungeons
+easier to come and go from, as the later ones already are.
+
+| Mod | What it does | Files in `mods/` |
+| --- | --- | --- |
+| `land-ruins-2-geo-gate` | a new Geo Gate on Land Ruins 2, which has none | `mdt/4040.mdp`-`4043.mdp` |
+| `land-ruins-3-geo-gate` | Land Ruins 3's exit-only Geo Gate made two-way | `mdt/4050.mdp`-`4053.mdp` |
+| `aqua-ruins-geo-gate` | the Energy Conversion area's exit-only Geo Gate made two-way | `mdt/50F0.mdp`-`50F3.mdp` |
+| `gale-ruins-3-geo-gate` | a new Geo Gate deeper in Gale Ruins (map 0x5830) | `mdt/5830.mdp`-`5833.mdp` |
+| `map-overlay` | M (or R3) spreads the minimap flat over the whole field, as Final Fantasy XII's, while you keep walking | none: a line in `mods.txt` |
+| `minimap-entrances` | the minimap shows every map's entrances, and Geo Gates in cyan (the game shows them on the corridor floors only) | none: a line in `mods.txt` |
+
+With any Geo Gate mod, `mdt/2000.mdp` and `E400.mdp` (Locca's gate and its
+later-story map) jump to the new gates, and `flaglist.txt` names them in
+Locca's list. `mods.txt` lists the mods built.
+
+Each `.mdp` is named after the map file it patches (four files for a map's
+story variants). A new gate is activated as the game's are: touch it once,
+then again; it then shows in Locca's list. Exit-only gates made two-way get
+a normal gate's arrival, look and first message. `GATES` in
+`port/tools/mods.py` is where to add more.
+
+## Linux (native)
+
+```sh
+python3 port/tools/build.py --target linux64 -j$(nproc)   # build/portlinux/grandia
+./grandia-xtreme      # boots the first .iso in iso/ or disc/; or pass --disc PATH
+```
+
+`./grandia-xtreme` runs `build/portlinux/grandia` from the repository root, where it
+finds `textures/`.
+
+Needs clang, lld and SDL3 (for example Homebrew's `llvm`, `lld` and `sdl3`, or your
+distribution's), after the decompilation's build above has run once. Run it from a
+Wayland or X11 session with OpenGL 3.3.
+
+## HD texture packs
+
+PCSX2 texture replacement packs (DDS files named `<hash>-<hash>-<bits>.dds`)
+are drawn in place of the game's textures, e.g. the HD pack and the widescreen
+UI pack by Panda_Venom and 1vierock. Put each pack's `replacements/` folder (or
+a symlink to it) in `textures/`; the folders are read in name order and, for a
+texture in several, the first folder's file wins:
+
+    textures/01-widescreen/   # Grnd_X_Widescreen_replacements.7z
+    textures/02-hd/           # .../PCSX2/textures/SLUS-20417/replacements
+
+`GRX_TEXTURES=dir1:dir2` (`;` on Windows) lists folders instead. The packs'
+files are not included (`textures/` is git-ignored).
 
 ## Layout
 
@@ -200,6 +299,7 @@ Keys of the port's own, which can't be remapped:
 | `port/src/` | the platform layer: kernel, GS and its OpenGL renderer, VU, sound, movies, memory cards, input |
 | `port/tests/` | tests for the platform layer's pieces |
 | `port/tools/grxdbg.py` | reads and writes a frozen game's memory by C name (F9) |
+| `port/tools/mods.py`, `port/tools/mdt.py` | the Geo Gate mods' map patches; reads and disassembles map files |
 
 ## Third-party library code
 
