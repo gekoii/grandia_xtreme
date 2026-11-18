@@ -152,13 +152,19 @@ HEADER_FIXUPS = {}
 # layer (port/tools/fixups/*.py, each with optional FIXUPS, HEADER_FIXUPS
 # and REPLACES like the ones above), so work on different areas doesn't
 # touch this file. A file's fixups from several modules apply in
-# module-name order.
+# module-name order. A module with DEBUG_ONLY = True (the debug kit,
+# fixups/devkit.py) is only loaded for --debug builds.
+DEBUG = "--debug" in sys.argv[1:]
+
+
 def _load_fixup_modules():
     import importlib.util
     for path in sorted(glob.glob(os.path.join(os.path.dirname(__file__), "fixups", "*.py"))):
         spec = importlib.util.spec_from_file_location("fixups_" + os.path.basename(path)[:-3], path)
         mod = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(mod)
+        if getattr(mod, "DEBUG_ONLY", False) and not DEBUG:
+            continue
         for rel, subs in getattr(mod, "FIXUPS", {}).items():
             FIXUPS.setdefault(rel, []).extend(subs)
         for rel, subs in getattr(mod, "HEADER_FIXUPS", {}).items():
@@ -698,10 +704,16 @@ def main():
                          "list the globals each defines; safe to run several at once")
     ap.add_argument("--out", metavar="DIR",
                     help="build into DIR instead of build/port, so several full builds can run at once")
+    ap.add_argument("--debug", action="store_true",
+                    help="with the debug kit (F5-F7 keys, the debug list on screen; fixups/devkit.py), "
+                         "into the target's folder + '-debug'")
     args = ap.parse_args()
     set_target(args.target)
+    global OUT
+    if args.debug:
+        OUT += "-debug"
+        PORT_FLAGS.append("-DGRX_DEBUG_KIT")
     if args.out:
-        global OUT
         OUT = os.path.abspath(args.out)
     if args.check:
         sys.exit(check(args.check, args.opt))

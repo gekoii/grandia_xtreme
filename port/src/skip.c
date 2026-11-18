@@ -10,7 +10,7 @@
 
    The prompt. In a cut scene START, which a scene doesn't use, goes no
    further: it shows the prompt, held it fills the prompt's bar, and
-   after 5 seconds the skip starts. Let go, the prompt stays a few
+   after 1.5 seconds the skip starts. Let go, the prompt stays a few
    seconds.
 
    The skip. Nothing of the scene's is left out: it runs as it would,
@@ -72,11 +72,11 @@ extern unsigned int movSkipRequest;
 /* EVT_SCNR_KEY_CONFIRM | EVT_SCNR_KEY_SKIP */
 #define KEYS_PASS 0x6000
 
-#define HOLD_FIELDS 300      /* 5 seconds */
-#define PROMPT_FIELDS 240    /* the prompt stays 4 seconds after START */
+#define HOLD_FIELDS 90       /* 1.5 seconds */
+#define PROMPT_FIELDS 120    /* the prompt stays 2 seconds after START */
 #define IDLE_FRAMES 60       /* drawn field frames without a scenario that end a skip */
 #define MENU_FRAMES 150      /* drawn field frames in a menu that end it */
-#define STILL_FRAMES 9000    /* drawn field frames the script may stand still (5 minutes at 30) */
+#define STILL_FRAMES 600     /* drawn field frames the script may stand still (a scene idling at its end) */
 #define SKIP_UPDATES 8       /* field frames run for each one drawn while skipping (GRX_SKIP_UPDATES) */
 
 static int on = 1;
@@ -103,6 +103,12 @@ static SDL_AtomicInt ov_show, ov_kind, ov_button, ov_progress, ov_black;
 
 /* Fast forward (grx_turbo_cycle): the speed picked, 1 2 or 4 */
 static SDL_AtomicInt turbo_pick;
+/* "Location recorded" shows until this SDL_GetTicks() time */
+static SDL_AtomicU32 notice_until;
+
+void grx_skip_notice(void) {
+    SDL_SetAtomicU32(&notice_until, (Uint32)SDL_GetTicks() + 2000u);
+}
 
 void grx_skip_config(const char *arg) {
     if (arg == NULL || !*arg) {
@@ -406,7 +412,8 @@ void grx_skip_draw_gl(int x, int y, int w, int h, int ww, int wh) {
     uint64_t now = SDL_GetTicksNS();
     float dt = last_ns != 0 ? (float)(now - last_ns) / 1e9f : 0.0f;
     int show = SDL_GetAtomicInt(&ov_show), kind = SDL_GetAtomicInt(&ov_kind);
-    int speed = grx_turbo_speed();
+    /* The fast forward slot: "Location recorded" for a while, else ">> n" */
+    int speed = now < (uint64_t)SDL_GetAtomicU32(&notice_until) * 1000000ull ? 9 : grx_turbo_speed();
     int px;
 
     last_ns = now;
@@ -489,7 +496,7 @@ void grx_skip_draw_gl(int x, int y, int w, int h, int ww, int wh) {
         if (ttex_kind >= 2) {
             glUniform1i(u_solid, 0);
             glUniform1f(u_alpha, a_turbo);
-            glUniform4f(u_bar, 1.0f, 1.0f, (float)(now % 1500000000u) / 1.5e9f, 0.0f);
+            glUniform4f(u_bar, 1.0f, ttex_kind == 9 ? 0.0f : 1.0f, (float)(now % 1500000000u) / 1.5e9f, 0.0f);
             quad(x1 - (float)ttex_w, y0, x1, y0 + (float)ttex_h, ww, wh);
         }
     }
