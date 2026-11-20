@@ -42,3 +42,5 @@ tools/compilers/
 
 # The port's third-party libraries (SDL3, see port/README.md)
 port/deps/
+# build_all.py's launcher, with the disc image's path
+/play.cmd

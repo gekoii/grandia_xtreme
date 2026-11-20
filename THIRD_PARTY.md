@@ -418,3 +418,23 @@ Sony's libmpeg decoder runs on the IPU and is Sony's own code; it follows
 `mpeg2decode`'s structure and names (5 files follow `getpic.c`,
 `recon.c` and `motion.c` directly), so how much of the MSSG notice applies
 is a judgement call: keep the notice with those 61 files.
+
+The port's own MPEG-2 decoder, `port/src/movie/mpeg2.c`, was written from
+ISO/IEC 13818-2, but its IDCT (`idct_row`, `idct_col`, `idct`) is
+`mpeg2decode`'s integer Chen-Wang IDCT (`idct.c`): the notice above applies
+to those functions.
+
+## The port's libraries
+
+The repository holds none of these; `build.cmd` downloads the first two
+into `port/deps/`, where each keeps its own license files.
+
+| Library | Used for | License |
+| --- | --- | --- |
+| [SDL3](https://github.com/libsdl-org/SDL) 3.4.18 | windows, OpenGL, audio, gamepads; `SDL3.dll` is copied next to `grandia.exe` | zlib |
+| [llvm-mingw](https://github.com/mstorsjo/llvm-mingw) 20261020 | the compiler and linker; `grandia.exe` links its runtime (mingw-w64, LLVM's compiler-rt) | Apache 2.0 with LLVM exceptions; mingw-w64's own (ZPL, public domain, and others) |
+| Python 3 | `build.cmd` and the build scripts | PSF |
+
+The decompilation's tools (splat, m2c, decomp-permuter, the EE GCC builds
+`tools/get_compilers.sh` fetches) are used only to build and check the
+decompilation; nothing of theirs goes into the port.
